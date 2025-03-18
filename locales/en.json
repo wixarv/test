@@ -1,0 +1,6 @@
+{
+	"server_error": "server_error",
+	"token_or_csrf_missing": "token_or_csrf_missing",
+	"invalid_csrf_token": "invalid_csrf_token",
+	"welcome_message": "welcome_message"
+}

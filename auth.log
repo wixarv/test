@@ -1,0 +1,16 @@
+{"ip":"::1","level":"error","message":"Change password error \"confirmNewPassword\" is required","userId":"67d9204b570c3104b2a409fb"}
+{"ip":"::1","level":"error","message":"Change password error \"confirmNewPassword\" is required","userId":"67d9204b570c3104b2a409fb"}
+{"ip":"::1","level":"info","message":"Password changed successfully","timestamp":"2025-03-18T07:43:51.406Z","userId":"67d9204b570c3104b2a409fb"}
+{"ip":"::1","level":"error","message":"Change password error No matching document found for id \"67d9204b570c3104b2a409fb\" version 1 modifiedPaths \"password, loginHistory, refreshToken\"","userId":"67d9204b570c3104b2a409fb"}
+{"ip":"::1","level":"error","message":"Change password error Current password is incorrect.","userId":"67d9204b570c3104b2a409fb"}
+{"ip":"::1","level":"error","message":"Change password error New password cannot be the same as the current password.","userId":"67d9204b570c3104b2a409fb"}
+{"ip":"::1","level":"info","message":"Password changed successfully","timestamp":"2025-03-18T07:52:12.233Z","userId":"67d9204b570c3104b2a409fb"}
+{"ip":"::1","level":"info","message":"Password changed successfully","timestamp":"2025-03-18T07:57:28.838Z","userId":"67d91e83cd980add22acef43"}
+{"ip":"::1","level":"info","message":"Password changed successfully, all sessions invalidated","timestamp":"2025-03-18T08:10:28.075Z","userId":"67d91e83cd980add22acef43"}
+{"country":"India","ip":"::1","level":"info","message":"User location retrieved","userId":"67d91e83cd980add22acef43"}
+{"country":"India","ip":"::1","level":"info","message":"User location retrieved","userId":"67d91e83cd980add22acef43"}
+{"country":"India","ip":"::1","level":"info","message":"User location retrieved","userId":"67d91e83cd980add22acef43"}
+{"country":"India","ip":"::1","level":"info","message":"User location retrieved","userId":"67d91e83cd980add22acef43"}
+{"deviceKey":"e4cb919e-442c-4725-aaa9-c60b6cb85c88","level":"info","message":"User logged out from specific device","userId":"67d91e83cd980add22acef43"}
+{"level":"info","message":"User logged out from all devices","userId":"67d91e83cd980add22acef43"}
+{"deviceKey":"0b60afc8-60f8-4d3a-a7f8-a5a66ce8f0b2","level":"info","message":"User logged out from specific device","userId":"67d91e83cd980add22acef43"}
