@@ -1,7 +1,7 @@
 // authMiddleware.js
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const User = require("../models/User");
+const User = require("../models/user");
 const CsrfToken = require("../models/CsrfToken");
 
 // Environment variables with defaults
