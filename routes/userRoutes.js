@@ -1,45 +1,65 @@
-const express = require('express');
-const router = express.Router();
+const router = require('express').Router();
 const authMiddleware = require('../middleware/authMiddleware');
 const upload = require('../middleware/upload');
-const {
- updateProfile, followUser, handleFollowRequest,
-  getFollowRequests, getFollowers, getFollowing, blockUser, getBlockedUsers,
-  disableAccount, enableAccount, deleteAccount, searchUsers,
-  unfollowUser, toggleHideProfile,
+const { getProfile, updateProfile, updateImage } = require('../controllers/profileController');
+const { 
+  followUser, 
+  unfollowUser, 
+  searchUser, 
+  getFollowers, 
+  getFollowing,
+  acceptFollowRequest,
+  rejectFollowRequest,
+  getFollowRequests,
+} = require('../controllers/socialController');
+const { 
+  blockUser,
   unblockUser,
-  getUnifiedProfile
-} = require('../controllers/userController');
+  getBlockedUsers,
+  addSearchHistory,
+  getSearchHistory,
+  removeSearchHistory,
+  clearSearchHistory
+} = require('../controllers/socialExtraController');
 
 // Profile routes
-router.get('/p8m2q/:username', authMiddleware, getUnifiedProfile); // was /profile/:username
-router.put('/z3n5t', authMiddleware, upload.fields([
-  { name: 'profileImage', maxCount: 1 }, 
-  { name: 'bgImage', maxCount: 1 }
-]), updateProfile); // was /profile
+router.get('/profile/:username?', authMiddleware, getProfile);
+router.put(
+  '/profile',
+  authMiddleware,
+  upload.fields([
+    { name: 'profileImage', maxCount: 1 },
+    { name: 'bgImage', maxCount: 1 }
+  ]),
+  updateProfile
+);
+router.put(
+  '/profile/image',
+  authMiddleware,
+  upload.fields([
+    { name: 'profileImage', maxCount: 1 },
+    { name: 'bgImage', maxCount: 1 }
+  ]),
+  updateImage
+);
 
-// Follow/Unfollow routes
-router.post('/f4j8r/:userId', authMiddleware, followUser); // was /follow/:userId
-router.post('/r9k1w/:userId', authMiddleware, handleFollowRequest); // was /follow-request/:userId
-router.post('/u6h3m/:userId', authMiddleware, unfollowUser); // was /unfollow/:userId
+// Social interaction routes
+router.post('/f4j8r/:username', authMiddleware, followUser);
+router.post('/u6h3m/:username', authMiddleware, unfollowUser);
+router.get('/searchUser', authMiddleware, searchUser);
+router.get('/followers/:username?', authMiddleware, getFollowers);
+router.get('/following/:username?', authMiddleware, getFollowing);
+router.post('/acceptFollowRequest', authMiddleware, acceptFollowRequest);
+router.delete('/rejectFollowRequest', authMiddleware, rejectFollowRequest);
+router.get('/getFollowRequests', authMiddleware, getFollowRequests);
 
-
-router.get('/q5v9x', authMiddleware, getFollowRequests); // was /follow-requests
-router.get('/t1b4y', authMiddleware, getFollowers); // was /followers
-router.get('/g8d2l', authMiddleware, getFollowing); // was /following
-
-// Block/Unblock routes
-router.post('/b7c3k/:userId', authMiddleware, blockUser); // was /block/:userId
-router.post('/u4n6b/:userId', authMiddleware, unblockUser); 
-router.get('/m5j9z', authMiddleware, getBlockedUsers); // was /blocked
-
-// Account management routes
-router.post('/d4h8n', authMiddleware, disableAccount); // was /disable-account
-router.post('/e2r6p', authMiddleware, enableAccount); // was /enable-account
-router.delete('/k9t3w', authMiddleware, deleteAccount); // was /delete-account
-router.post('/h1v5q', authMiddleware, toggleHideProfile); // was /toggle-hide-profile (changed to POST)
-
-// Search and suggestions
-router.get('/s7m2f', authMiddleware, searchUsers); // was /search
+// User interaction routes
+router.post('/block/:username', authMiddleware, blockUser);
+router.post('/unblock/:username', authMiddleware, unblockUser);
+router.get('/blocked-list', authMiddleware, getBlockedUsers);
+router.post('/addSearchHistory', authMiddleware, addSearchHistory);
+router.get('/getSearchHistory', authMiddleware, getSearchHistory);
+router.delete('/removeSearchHistory/:historyId', authMiddleware, removeSearchHistory);
+router.delete('/clearSearchHistory', authMiddleware, clearSearchHistory);
 
 module.exports = router;
