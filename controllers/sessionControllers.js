@@ -1,4 +1,4 @@
-const User = require("../models/User");
+const User = require("../models/user");
 const winston = require("winston");
 const getCountryFromIP = require("../utils/getcountry");
 const DeviceDetector = require("device-detector-js");

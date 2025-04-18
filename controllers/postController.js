@@ -1,5 +1,5 @@
 const Post = require('../models/post');
-const User = require('../models/User');
+const User = require('../models/user');
 const Notification = require('../models/Notification');
 const Topic = require('../models/Topic');
 const AWS = require('aws-sdk');

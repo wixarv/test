@@ -1,4 +1,4 @@
-const User = require('../models/User');
+const User = require('../models/user');
 const { cloudinary } = require('../config/cloudinary');
 const { getDataUri } = require('../utils/datauri');
 const Joi = require('joi');
