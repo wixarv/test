@@ -1,4 +1,4 @@
-const Story = require('../models/Story');
+const Story = require('../models/story');
 const User = require('../models/user');
 const Notification = require('../models/notifications');
 const AWS = require('aws-sdk');

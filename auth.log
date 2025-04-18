@@ -19,3 +19,5 @@
 {"email":"p@****om","ip":"12****.1","level":"info","message":"User signed up"}
 {"ip":"12****.1","level":"error","message":"Signup error Email and username already taken"}
 {"email":"pj****om","ip":"12****.1","level":"info","message":"User signed up"}
+{"ip":"12****.1","level":"error","message":"Signup error Email and username already taken"}
+{"email":"pj****om","ip":"12****.1","level":"info","message":"User signed up"}
