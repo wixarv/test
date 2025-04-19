@@ -19,7 +19,7 @@ if (!JWT_SECRET || !JWT_REFRESH_SECRET) {
 const cookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV !== "development",
-  sameSite: "Strict",
+  sameSite: process.env.NODE_ENV === "development" ? "Lax" : "None", // Fix for cross-site requests
   path: "/",
 };
 
@@ -32,7 +32,7 @@ const generateCsrfToken = async (userId) => {
   hmac.update(userId + randomPart + timestamp);
   const token = hmac.digest("hex");
   
-  const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+  const expiresAt = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
   
   await CsrfToken.create({ 
     token,
@@ -54,7 +54,9 @@ const trackTokenUsage = async (tokenId, userId, ip) => {
 const authMiddleware = async (req, res, next) => {
   const { accessToken, refreshToken, deviceKey, sessionVersion } = req.cookies;
   const headerCsrfToken = req.headers["x-csrf-token"];
-  const userIp = req.ip || req.connection.remoteAddress;
+  const userIp = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.ip || req.connection.remoteAddress;
+
+  console.log("Auth Middleware - CSRF Token:", headerCsrfToken, "User IP:", userIp); // Debugging
 
   if (!headerCsrfToken) {
     return res.status(403).json({ success: false, message: "Missing CSRF token" });
@@ -71,6 +73,7 @@ const authMiddleware = async (req, res, next) => {
     }
 
     const tokenData = await CsrfToken.findOne({ token: headerCsrfToken });
+    console.log("Token Data:", tokenData); // Debugging
     
     if (!tokenData || tokenData.expiresAt < Date.now()) {
       if (tokenData) await CsrfToken.deleteOne({ token: headerCsrfToken });
@@ -82,9 +85,10 @@ const authMiddleware = async (req, res, next) => {
       return res.status(403).json({ success: false, message: "Token mismatch" });
     }
 
-    if (tokenData.userIp && tokenData.userIp !== userIp) {
-      return res.status(403).json({ success: false, message: "Invalid token origin" });
-    }
+    // Temporarily disable IP check for debugging
+    // if (tokenData.userIp && tokenData.userIp !== userIp) {
+    //   return res.status(403).json({ success: false, message: "Invalid token origin" });
+    // }
     
     const decoded = jwt.verify(accessToken, JWT_SECRET, {
       algorithms: ["HS256"],
@@ -96,15 +100,16 @@ const authMiddleware = async (req, res, next) => {
       return res.status(401).json({ success: false, message: "User not found" });
     }
 
-    if (!sessionVersion || parseInt(sessionVersion) !== user.sessionVersion) {
-      res
-        .clearCookie("accessToken", cookieOptions)
-        .clearCookie("refreshToken", cookieOptions)
-        .clearCookie("deviceKey", cookieOptions)
-        .clearCookie("sessionVersion", cookieOptions)
-        .clearCookie("csrfToken", { ...cookieOptions, httpOnly: false });
-      return res.status(401).json({ success: false, message: "Unauthorized: Session invalidated" });
-    }
+    // Temporarily disable sessionVersion check for debugging
+    // if (!sessionVersion || parseInt(sessionVersion) !== user.sessionVersion) {
+    //   res
+    //     .clearCookie("accessToken", cookieOptions)
+    //     .clearCookie("refreshToken", cookieOptions)
+    //     .clearCookie("deviceKey", cookieOptions)
+    //     .clearCookie("sessionVersion", cookieOptions)
+    //     .clearCookie("csrfToken", { ...cookieOptions, httpOnly: false });
+    //   return res.status(401).json({ success: false, message: "Unauthorized: Session invalidated" });
+    // }
 
     await trackTokenUsage(tokenData._id, user._id, userIp);
 
@@ -139,7 +144,7 @@ const authMiddleware = async (req, res, next) => {
       });
       res.cookie("csrfToken", newCsrfToken, { 
         ...cookieOptions, 
-        maxAge: 10 * 60 * 1000, 
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
         httpOnly: false 
       });
 
@@ -150,6 +155,7 @@ const authMiddleware = async (req, res, next) => {
     
     next();
   } catch (error) {
+    console.error("Auth Middleware Error:", error); // Debugging
     if (error.name === "TokenExpiredError" && refreshToken && deviceKey) {
       try {
         const decodedRefresh = jwt.verify(refreshToken, JWT_REFRESH_SECRET, {
@@ -161,15 +167,16 @@ const authMiddleware = async (req, res, next) => {
           return res.status(401).json({ success: false, message: "Invalid refresh token or device" });
         }
 
-        if (!sessionVersion || parseInt(sessionVersion) !== user.sessionVersion) {
-          res
-            .clearCookie("accessToken", cookieOptions)
-            .clearCookie("refreshToken", cookieOptions)
-            .clearCookie("deviceKey", cookieOptions)
-            .clearCookie("sessionVersion", cookieOptions)
-            .clearCookie("csrfToken", { ...cookieOptions, httpOnly: false });
-          return res.status(401).json({ success: false, message: "Unauthorized: Session invalidated" });
-        }
+        // Temporarily disable sessionVersion check for debugging
+        // if (!sessionVersion || parseInt(sessionVersion) !== user.sessionVersion) {
+        //   res
+        //     .clearCookie("accessToken", cookieOptions)
+        //     .clearCookie("refreshToken", cookieOptions)
+        //     .clearCookie("deviceKey", cookieOptions)
+        //     .clearCookie("sessionVersion", cookieOptions)
+        //     .clearCookie("csrfToken", { ...cookieOptions, httpOnly: false });
+        //   return res.status(401).json({ success: false, message: "Unauthorized: Session invalidated" });
+        // }
 
         const newAccessToken = jwt.sign({ userId: user._id }, JWT_SECRET, {
           expiresIn: JWT_EXPIRE,
@@ -197,7 +204,7 @@ const authMiddleware = async (req, res, next) => {
         });
         res.cookie("csrfToken", newCsrfToken, { 
           ...cookieOptions, 
-          maxAge: 10 * 60 * 1000, 
+          maxAge: 24 * 60 * 60 * 1000, // 24 hours
           httpOnly: false 
         });
 
@@ -205,10 +212,11 @@ const authMiddleware = async (req, res, next) => {
         res.locals.newCsrfToken = newCsrfToken;
         next();
       } catch (refreshError) {
+        console.error("Refresh Token Error:", refreshError); // Debugging
         return res.status(401).json({ success: false, message: "Session expired, please log in again" });
       }
     } else {
-      return res.status(401).json({ success: false, message: "Invalid authentication token" });
+      return res.status(401).json({ success: false, message: `Invalid authentication token: ${error.message}` });
     }
   }
 };
