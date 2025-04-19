@@ -132,7 +132,6 @@ app.get("/api/active-users", (req, res) => {
     });
   }}),
 
-  
 connectDB();
 
 module.exports = app;
